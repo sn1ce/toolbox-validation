@@ -17,8 +17,13 @@ jobs:
         run: docker pull ksandermann/cloud-toolbox:latest
 
       - name: Run Toolbox Test
+        env:
+          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+          PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
         run: |
           docker run --rm \
+            -e PUSHOVER_USER_KEY \
+            -e PUSHOVER_API_TOKEN \
             -v ${{ github.workspace }}:/workspace \
             ksandermann/cloud-toolbox:latest \
             bash /workspace/toolbox_test.sh
