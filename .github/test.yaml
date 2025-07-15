@@ -1,21 +1,24 @@
-name: Test Toolbox
+name: Validate Toolbox
 
 on:
-  workflow_run:
-    workflows: ["Build Images"]
-    types:
-      - completed
+  workflow_dispatch: # Manual trigger
+  push:
+    branches:
+      - master
 
 jobs:
-  run-tests:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-
+  test-toolbox:
+    runs-on: [self-hosted, Linux, X64]
     steps:
-      - name: Checkout
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Pull & Run Toolbox Tests
+      - name: Pull Toolbox Image
+        run: docker pull ksandermann/cloud-toolbox:latest
+
+      - name: Run Toolbox Test
         run: |
-          docker pull ksandermann/cloud-toolbox:latest
-          docker run --rm ksandermann/cloud-toolbox:latest /toolbox/test_all_versions.sh
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            ksandermann/cloud-toolbox:latest \
+            bash /workspace/toolbox_test.sh
