@@ -40,18 +40,18 @@ for tool in "${TOOLS[@]}"; do
   check_tool "$tool"
 done
 
+SUMMARY_MSG=""
+
 if [[ $MISSING_TOOLS -gt 0 ]]; then
-  REPORT+="\n❌ $MISSING_TOOLS tool(s) missing."
+  SUMMARY_MSG="❌ $MISSING_TOOLS tool(s) missing."
 else
-  REPORT+="\n✅ All tools installed."
+  SUMMARY_MSG="✅ All tools installed."
 fi
 
-# Send pushover notification
 curl -s \
   -F "token=${PUSHOVER_API_TOKEN}" \
   -F "user=${PUSHOVER_USER_KEY}" \
-  -F "message=${REPORT}" \
+  -F "message=${SUMMARY_MSG}" \
   https://api.pushover.net/1/messages.json
 
-# Always succeed
 exit 0
