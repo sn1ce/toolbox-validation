@@ -1,0 +1,21 @@
+name: Test Toolbox
+
+on:
+  workflow_run:
+    workflows: ["Build Images"]
+    types:
+      - completed
+
+jobs:
+  run-tests:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pull & Run Toolbox Tests
+        run: |
+          docker pull ksandermann/cloud-toolbox:latest
+          docker run --rm ksandermann/cloud-toolbox:latest /toolbox/test_all_versions.sh
