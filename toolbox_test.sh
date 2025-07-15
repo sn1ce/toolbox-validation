@@ -4,12 +4,15 @@ set -euo pipefail
 echo "Checking if required tools are installed..."
 
 MISSING_TOOLS=0
+REPORT="Toolbox validation result:\n"
 
 check_tool() {
   if command -v "$1" &>/dev/null; then
     echo "[OK] $1 is installed"
+    REPORT+="[OK] $1 is installed\n"
   else
     echo "[MISSING] $1 is NOT installed"
+    REPORT+="[MISSING] $1 is NOT installed\n"
     MISSING_TOOLS=$((MISSING_TOOLS + 1))
   fi
 }
@@ -38,10 +41,17 @@ for tool in "${TOOLS[@]}"; do
 done
 
 if [[ $MISSING_TOOLS -gt 0 ]]; then
-  echo "[FAILURE] Some tools are missing ($MISSING_TOOLS total)."
+  REPORT+="\n❌ $MISSING_TOOLS tool(s) missing."
 else
-  echo "[SUCCESS] All tools are installed."
+  REPORT+="\n✅ All tools installed."
 fi
 
-# Always exit 0, regardless of result
+# Send pushover notification
+curl -s \
+  -F "token=${PUSHOVER_API_TOKEN}" \
+  -F "user=${PUSHOVER_USER_KEY}" \
+  -F "message=${REPORT}" \
+  https://api.pushover.net/1/messages.json
+
+# Always succeed
 exit 0
